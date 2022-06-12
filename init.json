@@ -1,0 +1,14 @@
+{
+  "name": "test token 1",
+  "symbol": "test test",
+  "entropy": "sam o nella academy beef and pork",
+  "royalty_info": {
+    "decimal_places_in_rates": 3,
+    "royalties": [
+      {
+        "recipient": "secret1ap26qrlp8mcq2pg6r47w43l0y8zkqm8a450s03",
+        "rate": 25
+      }
+    ]
+  }
+}

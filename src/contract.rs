@@ -82,10 +82,15 @@ pub fn init<S: Storage, A: Api, Q: Querier>(
         status: ContractStatus::Normal.to_u8(),
         token_supply_is_public: init_config.public_token_supply.unwrap_or(false),
         owner_is_public: init_config.public_owner.unwrap_or(false),
-        sealed_metadata_is_enabled: init_config.enable_sealed_metadata.unwrap_or(false),
+        // Alek: we need sealed metadata for company uses
+        sealed_metadata_is_enabled: init_config.enable_sealed_metadata.unwrap_or(true),
+        // Should be up to the user
         unwrap_to_private: init_config.unwrapped_metadata_is_private.unwrap_or(false),
-        minter_may_update_metadata: init_config.minter_may_update_metadata.unwrap_or(true),
+        // Give option to update metadata
+        minter_may_update_metadata: init_config.minter_may_update_metadata.unwrap_or(false),
+        // Owner cannot update metadata
         owner_may_update_metadata: init_config.owner_may_update_metadata.unwrap_or(false),
+        // Burn is disabled, later will be limited to us???
         burn_is_enabled: init_config.enable_burn.unwrap_or(false),
     };
 
@@ -489,6 +494,9 @@ pub fn mint<S: Storage, A: Api, Q: Querier>(
             "Only designated minters are allowed to mint",
         ));
     }
+    // Need to check for correct metadata
+    // Need to allow for transfers
+    // Need to check royalty info?
     let mints = vec![Mint {
         token_id,
         owner,
@@ -684,6 +692,7 @@ pub fn set_metadata<S: Storage, A: Api, Q: Querier>(
             return Err(StdError::generic_err(custom_err));
         }
     }
+    // need to check for metadata conformity
     if let Some(public) = public_metadata {
         set_metadata_impl(&mut deps.storage, &token, idx, PREFIX_PUB_META, &public)?;
     }
@@ -1804,7 +1813,7 @@ pub fn query<S: Storage, A: Api, Q: Querier>(deps: &Extern<S, A, Q>, msg: QueryM
         QueryMsg::IsUnwrapped { token_id } => query_is_unwrapped(&deps.storage, &token_id),
         QueryMsg::IsTransferable { token_id } => query_is_transferable(&deps.storage, &token_id),
         QueryMsg::ImplementsNonTransferableTokens {} => {
-            to_binary(&QueryAnswer::ImplementsNonTransferableTokens { is_enabled: true })
+            to_binary(&QueryAnswer::ImplementsNonTransferableTokens { is_enabled: false })
         }
         QueryMsg::ImplementsTokenSubtype {} => {
             to_binary(&QueryAnswer::ImplementsTokenSubtype { is_enabled: true })
